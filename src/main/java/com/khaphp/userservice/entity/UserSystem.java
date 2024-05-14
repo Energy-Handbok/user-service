@@ -1,4 +1,4 @@
-package com.khaphp.userservice.Entity;
+package com.khaphp.userservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
