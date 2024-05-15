@@ -3,7 +3,6 @@ package com.khaphp.userservice.controller;
 import com.khaphp.userservice.Service.UserSystemService;
 import com.khaphp.userservice.dto.LoginParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

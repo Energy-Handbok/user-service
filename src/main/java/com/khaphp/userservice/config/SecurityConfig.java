@@ -35,6 +35,21 @@ public class SecurityConfig {
             "/**"
     };
 
+    private final List<String> allowOrigin = List.of(
+            "http://localhost:8080",
+            "http://localhost:8081",
+            "http://localhost:8082",
+            "http://localhost:8083",
+            "http://localhost:8084",
+            "http://localhost:8085",
+            "http://localhost:8086",
+            "http://localhost:8087",
+            "http://localhost:8088",
+            "http://localhost:8089",
+            "http://localhost:8761",
+            "http://localhost:9411"
+            );
+
     private final UserDetailsService userDetailsService;
 
     /**
@@ -74,10 +89,15 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configurationSource = new CorsConfiguration();
-        configurationSource.setAllowedOrigins(List.of("*"));
+        // Cho phép các nguồn gốc (origins) truy cập
+        configurationSource.setAllowedOrigins(allowOrigin);
+        // Cho phép tất cả các phương thức HTTP (GET, POST, PUT, DELETE, v.v.)
         configurationSource.setAllowedMethods(List.of("*"));
+        // Cho phép tất cả các headers
         configurationSource.setAllowedHeaders(List.of("*"));
+        // Tạo một đối tượng UrlBasedCorsConfigurationSource để đăng ký cấu hình CORS
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Đăng ký cấu hình CORS cho tất cả các đường dẫn URL
         source.registerCorsConfiguration("/**", configurationSource);
         return source;
     }

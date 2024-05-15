@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserSystemServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">user-service</a> &gt; <a href="index.source.html" class="el_package">com.khaphp.userservice.Service</a> &gt; <span class="el_source">UserSystemServiceImpl.java</span></div><h1>UserSystemServiceImpl.java</h1><pre class="source lang-java linenums">package com.khaphp.userservice.Service;
+
+import com.khaphp.common.dto.ResponseObject;
+import com.khaphp.userservice.constant.Status;
+import com.khaphp.userservice.dto.*;
+import com.khaphp.userservice.entity.UserSystem;
+import com.khaphp.userservice.exception.UserNotFoudException;
+import com.khaphp.userservice.repository.UserSystemRepository;
+import com.khaphp.userservice.util.security.JwtHelper;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+<span class="nc" id="L28">@RequiredArgsConstructor</span>
+public class UserSystemServiceImpl implements UserSystemService {
+    public static final String SUCCESS_MESSAGE = &quot;Success&quot;;
+    public static final String USER_NOT_FOUND_MESSGAE = &quot;user not found&quot;;
+    public static final String EXCEPTION_FORMAT_MESSAGE = &quot;Exception: &quot;;
+    private final ModelMapper modelMapper;
+
+    private final FileStore fileStore;
+
+    @Value(&quot;${aws.s3.link_bucket}&quot;)
+    private String linkBucket;
+
+    private final UserSystemRepository userRepository;
+
+    private final JwtHelper jwtHelper;
+
+//    @Autowired
+//    private WalletService walletService;
+
+
+    @Value(&quot;${logo.energy_handbook.name}&quot;)
+    private String logoName;
+
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+<span class="nc" id="L54">        return new UserDetailsService() {</span>
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+<span class="nc" id="L57">                return userRepository.findByUsername(username).orElseThrow(() -&gt; new UsernameNotFoundException(&quot;User not found&quot;));</span>
+            }
+        };
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; getAll(int pageSize, int pageIndex) {
+<span class="nc" id="L64">        Page&lt;UserSystem&gt; objListPage = null;</span>
+<span class="nc" id="L65">        List&lt;UserSystem&gt; objList = null;</span>
+<span class="nc" id="L66">        int totalPage = 0;</span>
+        //paging
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (pageSize &gt; 0 &amp;&amp; pageIndex &gt; 0) {</span>
+<span class="nc" id="L69">            objListPage = userRepository.findAll(PageRequest.of(pageIndex - 1, pageSize));  //vì current page ở code nó start = 0, hay bên ngoài la 2pga đầu tiên hay 1</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (objListPage != null) {</span>
+<span class="nc" id="L71">                totalPage = objListPage.getTotalPages();</span>
+<span class="nc" id="L72">                objList = objListPage.getContent();</span>
+            }
+        } else { //get all
+<span class="nc" id="L75">            objList = userRepository.findAll();</span>
+<span class="nc" id="L76">            pageIndex = 1;</span>
+        }
+<span class="nc" id="L78">        objList.forEach(userSystem -&gt; userSystem.setImgUrl(linkBucket + userSystem.getImgUrl()));</span>
+<span class="nc" id="L79">        return ResponseObject.builder()</span>
+<span class="nc" id="L80">                .code(200).message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L81">                .pageSize(objList.size()).pageIndex(pageIndex).totalPage(totalPage)</span>
+<span class="nc" id="L82">                .data(objList)</span>
+<span class="nc" id="L83">                .build();</span>
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; getDetail(String id) {
+        try {
+<span class="nc" id="L89">            UserSystem userSystem = userRepository.findById(id).orElse(null);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L91">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+            try {
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                if (userSystem.getImgUrl() != null) {</span>
+<span class="nc" id="L95">                    userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());</span>
+                }
+<span class="nc" id="L97">            } catch (Exception e) {</span>
+
+<span class="nc" id="L99">            }</span>
+
+//            userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
+<span class="nc" id="L102">            return ResponseObject.builder()</span>
+<span class="nc" id="L103">                    .code(200)</span>
+<span class="nc" id="L104">                    .message(&quot;Found&quot;)</span>
+<span class="nc" id="L105">                    .data(userSystem)</span>
+<span class="nc" id="L106">                    .build();</span>
+<span class="nc" id="L107">        } catch (Exception e) {</span>
+<span class="nc" id="L108">            return ResponseObject.builder()</span>
+<span class="nc" id="L109">                    .code(400)</span>
+<span class="nc" id="L110">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L111">                    .build();</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; create(UserSystemDTOcreate object, String role) {
+        try {
+            //check unique
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (userRepository.existsByUsername(object.getUsername())) {</span>
+<span class="nc" id="L120">                throw new Exception(&quot;username exists&quot;);</span>
+            }
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (userRepository.existsByEmail(object.getEmail())) {</span>
+<span class="nc" id="L123">                throw new Exception(&quot;email exists&quot;);</span>
+            }
+
+<span class="nc" id="L126">            UserSystem userSystem = modelMapper.map(object, UserSystem.class);</span>
+<span class="nc" id="L127">            userSystem.setStatus(Status.ACTIVE.toString());</span>
+<span class="nc" id="L128">            userSystem.setRole(role);</span>
+<span class="nc" id="L129">            userSystem.setPremium(false);</span>
+<span class="nc" id="L130">            userSystem.setBirthday(new Date(object.getBirthdayL() * 1000));</span>
+<span class="nc" id="L131">            userSystem.setImgUrl(logoName);</span>
+<span class="nc" id="L132">            userSystem = userRepository.save(userSystem);</span>
+
+            //create wallet for customer
+//            if (role.equals(Role.CUSTOMER.toString())) {
+//                walletService.create(WalletDTOcreate.builder().customerId(userSystem.getId()).build(), this);
+//            }
+
+<span class="nc" id="L139">            return ResponseObject.builder()</span>
+<span class="nc" id="L140">                    .code(200)</span>
+<span class="nc" id="L141">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L142">                    .data(userSystem)</span>
+<span class="nc" id="L143">                    .build();</span>
+<span class="nc" id="L144">        } catch (Exception e) {</span>
+<span class="nc" id="L145">            return ResponseObject.builder()</span>
+<span class="nc" id="L146">                    .code(400)</span>
+<span class="nc" id="L147">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L148">                    .build();</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; update(UserSystemDTOUpdate object) {
+        try {
+<span class="nc" id="L155">            UserSystem userSystem = userRepository.findById(object.getId()).orElse(null);</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L157">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+<span class="nc" id="L159">            userSystem.setName(object.getName());</span>
+<span class="nc" id="L160">            userSystem.setBirthday(new Date(object.getBirthdayL() * 1000));</span>
+<span class="nc" id="L161">            userSystem.setGender(object.getGender());</span>
+<span class="nc" id="L162">            userRepository.save(userSystem);</span>
+<span class="nc" id="L163">            return ResponseObject.builder()</span>
+<span class="nc" id="L164">                    .code(200)</span>
+<span class="nc" id="L165">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L166">                    .data(userSystem)</span>
+<span class="nc" id="L167">                    .build();</span>
+<span class="nc" id="L168">        } catch (Exception e) {</span>
+<span class="nc" id="L169">            return ResponseObject.builder()</span>
+<span class="nc" id="L170">                    .code(400)</span>
+<span class="nc" id="L171">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L172">                    .build();</span>
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseObject&lt;Object&gt; updateImage(String id, MultipartFile file) {
+        try {
+            //find user
+<span class="nc" id="L181">            UserSystem userSystem = userRepository.findById(id).orElse(null);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L183">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (!userSystem.getImgUrl().equals(logoName)) {</span>
+<span class="nc" id="L186">                fileStore.deleteImage(userSystem.getImgUrl());</span>
+            }
+<span class="nc" id="L188">            userSystem.setImgUrl(fileStore.uploadImg(file));</span>
+<span class="nc" id="L189">            userRepository.save(userSystem);</span>
+<span class="nc" id="L190">            return ResponseObject.builder()</span>
+<span class="nc" id="L191">                    .code(200)</span>
+<span class="nc" id="L192">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L193">                    .build();</span>
+<span class="nc" id="L194">        } catch (Exception e) {</span>
+<span class="nc" id="L195">            return ResponseObject.builder()</span>
+<span class="nc" id="L196">                    .code(400)</span>
+<span class="nc" id="L197">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L198">                    .build();</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; delete(String id) {
+        try {
+<span class="nc" id="L205">            UserSystem userSystem = userRepository.findById(id).orElse(null);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L207">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+<span class="nc bnc" id="L209" title="All 2 branches missed.">            if (!userSystem.getImgUrl().equals(logoName)) {</span>
+<span class="nc" id="L210">                fileStore.deleteImage(userSystem.getImgUrl());</span>
+            }
+            //delete wallet
+//            walletService.delete(userSystem.getWallet().getId());
+<span class="nc" id="L214">            userRepository.delete(userSystem);</span>
+<span class="nc" id="L215">            return ResponseObject.builder()</span>
+<span class="nc" id="L216">                    .code(200)</span>
+<span class="nc" id="L217">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L218">                    .data(null)</span>
+<span class="nc" id="L219">                    .build();</span>
+<span class="nc" id="L220">        } catch (Exception e) {</span>
+<span class="nc" id="L221">            return ResponseObject.builder()</span>
+<span class="nc" id="L222">                    .code(400)</span>
+<span class="nc" id="L223">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L224">                    .build();</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; login(LoginParam param) {
+        try {
+<span class="nc" id="L231">            UserSystem userSystem = userRepository.findByUsernameAndPassword(param.getUsername(), param.getPassword());</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L233">                throw new Exception(&quot;Wrong username or password&quot;);</span>
+            }
+<span class="nc bnc" id="L235" title="All 2 branches missed.">            if (userSystem.getStatus().equals(Status.DEACTIVE.toString())) {</span>
+<span class="nc" id="L236">                throw new Exception(&quot;Your account was Ban&quot;);</span>
+            }
+<span class="nc" id="L238">            return ResponseObject.builder()</span>
+<span class="nc" id="L239">                    .code(200)</span>
+<span class="nc" id="L240">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L241">                    .data(jwtHelper.generateToken(userSystem.getUsername(), Map.of(&quot;role&quot;, userSystem.getRole())))</span>
+<span class="nc" id="L242">                    .build();</span>
+<span class="nc" id="L243">        } catch (Exception e) {</span>
+<span class="nc" id="L244">            return ResponseObject.builder()</span>
+<span class="nc" id="L245">                    .code(400)</span>
+<span class="nc" id="L246">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L247">                    .build();</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; changePassword(ChangePwdParam param) {
+        try {
+<span class="nc" id="L254">            UserSystem userSystem = userRepository.findById(param.getId()).orElse(null);</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L256">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+<span class="nc bnc" id="L258" title="All 2 branches missed.">            if (!userSystem.getPassword().equals(param.getPassword())) {</span>
+<span class="nc" id="L259">                throw new Exception(&quot;Wrong old password&quot;);</span>
+            }
+<span class="nc" id="L261">            userSystem.setPassword(param.getNewPassword());</span>
+<span class="nc" id="L262">            userRepository.save(userSystem);</span>
+<span class="nc" id="L263">            return ResponseObject.builder()</span>
+<span class="nc" id="L264">                    .code(200)</span>
+<span class="nc" id="L265">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L266">                    .build();</span>
+<span class="nc" id="L267">        } catch (Exception e) {</span>
+<span class="nc" id="L268">            return ResponseObject.builder()</span>
+<span class="nc" id="L269">                    .code(400)</span>
+<span class="nc" id="L270">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L271">                    .build();</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; updateStatus(UpdateStatusParam param) {
+        try {
+<span class="nc" id="L278">            UserSystem userSystem = userRepository.findById(param.getId()).orElse(null);</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L280">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+<span class="nc" id="L282">            userSystem.setStatus(param.getStatus());</span>
+<span class="nc" id="L283">            userRepository.save(userSystem);</span>
+<span class="nc" id="L284">            return ResponseObject.builder()</span>
+<span class="nc" id="L285">                    .code(200)</span>
+<span class="nc" id="L286">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L287">                    .build();</span>
+<span class="nc" id="L288">        } catch (Exception e) {</span>
+<span class="nc" id="L289">            return ResponseObject.builder()</span>
+<span class="nc" id="L290">                    .code(400)</span>
+<span class="nc" id="L291">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L292">                    .build();</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; updateEmail(UpdateEmailParam param) {
+        try {
+<span class="nc" id="L299">            UserSystem userSystem = userRepository.findById(param.getId()).orElse(null);</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L301">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+<span class="nc" id="L303">            userSystem.setEmail(param.getEmail());</span>
+<span class="nc" id="L304">            userRepository.save(userSystem);</span>
+<span class="nc" id="L305">            return ResponseObject.builder()</span>
+<span class="nc" id="L306">                    .code(200)</span>
+<span class="nc" id="L307">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L308">                    .build();</span>
+<span class="nc" id="L309">        } catch (Exception e) {</span>
+<span class="nc" id="L310">            ResponseObject&lt;Object&gt; responseObject = ResponseObject.builder().code(400).build();</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">            if(e.getMessage().contains(&quot;Duplicate entry&quot;)){</span>
+<span class="nc" id="L312">                responseObject.setMessage(&quot;Email đã được sử dụng&quot;);</span>
+            }else{
+<span class="nc" id="L314">                responseObject.setMessage(EXCEPTION_FORMAT_MESSAGE + e.getMessage());</span>
+            }
+<span class="nc" id="L316">            return responseObject;</span>
+        }
+    }
+
+    @Override
+    public ResponseObject&lt;Object&gt; updatePassword(NewPwdParam param) {
+        try {
+<span class="nc" id="L323">            UserSystem userSystem = userRepository.findById(param.getId()).orElse(null);</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">            if (userSystem == null) {</span>
+<span class="nc" id="L325">                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);</span>
+            }
+<span class="nc" id="L327">            userSystem.setPassword(param.getNewPassword());</span>
+<span class="nc" id="L328">            userRepository.save(userSystem);</span>
+<span class="nc" id="L329">            return ResponseObject.builder()</span>
+<span class="nc" id="L330">                    .code(200)</span>
+<span class="nc" id="L331">                    .message(SUCCESS_MESSAGE)</span>
+<span class="nc" id="L332">                    .build();</span>
+<span class="nc" id="L333">        } catch (Exception e) {</span>
+<span class="nc" id="L334">            return ResponseObject.builder()</span>
+<span class="nc" id="L335">                    .code(400)</span>
+<span class="nc" id="L336">                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())</span>
+<span class="nc" id="L337">                    .build();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
