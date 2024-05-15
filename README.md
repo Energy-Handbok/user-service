@@ -7,4 +7,6 @@
 # User Serice
 *Manage info user, register & login*
 
+👉 [JaCoCo Code Coverage Report](https://energy-handbok.github.io/user-service/target/site/jacoco/index.html) 🌱
+
 #### © 2024 BlueEyesssss
