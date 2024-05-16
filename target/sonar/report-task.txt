@@ -2,5 +2,5 @@ projectKey=com.khaphp:user-service
 serverUrl=http://localhost:9000
 serverVersion=10.5.1.90531
 dashboardUrl=http://localhost:9000/dashboard?id=com.khaphp%3Auser-service
-ceTaskId=5f83629a-22d3-4d33-b771-910c67ce67af
-ceTaskUrl=http://localhost:9000/api/ce/task?id=5f83629a-22d3-4d33-b771-910c67ce67af
+ceTaskId=f90350d9-f9ed-4667-ac7a-cb3957e4ef62
+ceTaskUrl=http://localhost:9000/api/ce/task?id=f90350d9-f9ed-4667-ac7a-cb3957e4ef62

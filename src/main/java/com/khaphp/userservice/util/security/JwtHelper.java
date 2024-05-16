@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -38,12 +37,12 @@ public class JwtHelper {
         return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) { //vừa check username lu7uu và check time expired
-        if (token == null || userDetails == null) {
-            return false;
-        }
-        return getUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
-    }
+//    public boolean isTokenValid(String token, UserDetails userDetails) { //vừa check username lu7uu và check time expired
+//        if (token == null || userDetails == null) {
+//            return false;
+//        }
+//        return getUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
+//    }
 
     private boolean isTokenExpired(String token) {
         return getExpiredTime(token).before(new Date());

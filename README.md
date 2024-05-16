@@ -4,9 +4,9 @@
 
 [![Java CI with Maven](https://github.com/Energy-Handbok/user-service/actions/workflows/maven.yml/badge.svg)](https://github.com/Energy-Handbok/user-service/actions/workflows/maven.yml)
 
-# User Serice
+# User Service
 *Manage info user, register & login*
 
-👉 [JaCoCo Code Coverage Report](https://energy-handbok.github.io/user-service/target/site/jacoco/index.html) 🌱
+👉 [JaCoCo Code Coverage Report](https://energy-handbok.github.io/jacoco-report/user-service/site/jacoco/index.html) 🌱
 
 #### © 2024 BlueEyesssss
