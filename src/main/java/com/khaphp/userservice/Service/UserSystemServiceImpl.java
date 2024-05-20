@@ -109,6 +109,35 @@ public class UserSystemServiceImpl implements UserSystemService {
     }
 
     @Override
+    public ResponseObject<Object> getByEmail(String email) {
+        try {
+            UserSystem userSystem = userRepository.findByEmail(email);
+            if (userSystem == null) {
+                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);
+            }
+            try {
+                if (userSystem.getImgUrl() != null) {
+                    userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
+                }
+            } catch (Exception e) {
+
+            }
+
+//            userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
+            return ResponseObject.builder()
+                    .code(200)
+                    .message("Found")
+                    .data(userSystem)
+                    .build();
+        } catch (Exception e) {
+            return ResponseObject.builder()
+                    .code(400)
+                    .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
     public ResponseObject<Object> create(UserSystemDTOcreate object, String role) {
         try {
             //check unique

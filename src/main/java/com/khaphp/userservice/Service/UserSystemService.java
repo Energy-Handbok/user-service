@@ -8,6 +8,7 @@ public interface UserSystemService {
 
     ResponseObject<Object> getAll(int pageSize, int pageIndex);
     ResponseObject<Object> getDetail(String id);
+    ResponseObject<Object> getByEmail(String email);
     ResponseObject<Object> create(UserSystemDTOcreate object, String role);
     ResponseObject<Object> update(UserSystemDTOUpdate object);
     ResponseObject<Object> updateImage(String id, MultipartFile file);
