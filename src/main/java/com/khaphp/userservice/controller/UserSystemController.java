@@ -41,8 +41,8 @@ public class UserSystemController {
         return ResponseEntity.badRequest().body(responseObject);
     }
 
-    @GetMapping("/detail/{email}")
-    public ResponseEntity<?> getObjectByEmail(@PathVariable("email") String email){
+    @GetMapping("/detail-by-email")
+    public ResponseEntity<?> getObjectByEmail(String email){
         ResponseObject<Object> responseObject = userSystemService.getByEmail(email);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);

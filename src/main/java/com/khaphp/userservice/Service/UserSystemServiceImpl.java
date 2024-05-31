@@ -263,7 +263,7 @@ public class UserSystemServiceImpl implements UserSystemService {
             return ResponseObject.builder()
                     .code(200)
                     .message(SUCCESS_MESSAGE)
-                    .data(jwtHelper.generateToken(userSystem.getUsername(), Map.of("role", userSystem.getRole())))
+                    .data(jwtHelper.generateToken(userSystem.getUsername(), Map.of("roles", userSystem.getRole())))
                     .build();
         } catch (Exception e) {
             return ResponseObject.builder()
