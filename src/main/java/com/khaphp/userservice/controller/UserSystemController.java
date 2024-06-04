@@ -24,7 +24,7 @@ public class UserSystemController {
 //            "'ROLE_"+Role.ADMIN+"'," +
 //            "'ROLE_"+Role.EMPLOYEE+"'" +
 //            ")")
-    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "10") int pageSize,
+    public ResponseEntity<Object> getAll(@RequestParam(defaultValue = "10") int pageSize,
                                     @RequestParam(defaultValue = "1") int pageIndex){
         ResponseObject<Object> responseObject = userSystemService.getAll(pageSize, pageIndex);
         if(responseObject.getCode() == 200){
@@ -33,7 +33,7 @@ public class UserSystemController {
         return ResponseEntity.badRequest().body(responseObject);
     }
     @GetMapping("/detail")
-    public ResponseEntity<?> getObject(String id){
+    public ResponseEntity<Object> getObject(String id){
         ResponseObject<Object> responseObject = userSystemService.getDetail(id);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -42,7 +42,7 @@ public class UserSystemController {
     }
 
     @GetMapping("/detail-by-email")
-    public ResponseEntity<?> getObjectByEmail(String email){
+    public ResponseEntity<Object> getObjectByEmail(String email){
         ResponseObject<Object> responseObject = userSystemService.getByEmail(email);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -51,7 +51,7 @@ public class UserSystemController {
     }
 
     @PostMapping("/customer")
-    public ResponseEntity<?> createObject(@RequestBody @Valid UserSystemDTOcreate object){
+    public ResponseEntity<Object> createObject(@RequestBody @Valid UserSystemDTOcreate object){
         ResponseObject<Object> responseObject = userSystemService.create(object, Role.CUSTOMER.toString());
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -60,7 +60,7 @@ public class UserSystemController {
     }
 
     @PostMapping("/employee")
-    public ResponseEntity<?> createObject2(@RequestBody @Valid UserSystemDTOcreate object){
+    public ResponseEntity<Object> createObject2(@RequestBody @Valid UserSystemDTOcreate object){
         ResponseObject<Object> responseObject = userSystemService.create(object, Role.EMPLOYEE.toString());
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -69,7 +69,7 @@ public class UserSystemController {
     }
 
     @PostMapping("/shipper")
-    public ResponseEntity<?> createObject3(@RequestBody @Valid UserSystemDTOcreate object){
+    public ResponseEntity<Object> createObject3(@RequestBody @Valid UserSystemDTOcreate object){
         ResponseObject<Object> responseObject = userSystemService.create(object, Role.SHIPPER.toString());
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -78,7 +78,7 @@ public class UserSystemController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateObject(@RequestBody @Valid UserSystemDTOUpdate object){
+    public ResponseEntity<Object> updateObject(@RequestBody @Valid UserSystemDTOUpdate object){
         ResponseObject<Object> responseObject = userSystemService.update(object);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -87,7 +87,7 @@ public class UserSystemController {
     }
 
     @PutMapping("/change-pwd")
-    public ResponseEntity<?> changePwd(@RequestBody @Valid ChangePwdParam object){
+    public ResponseEntity<Object> changePwd(@RequestBody @Valid ChangePwdParam object){
         ResponseObject<Object> responseObject = userSystemService.changePassword(object);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -97,7 +97,7 @@ public class UserSystemController {
 
     @PutMapping("/new-pwd")
     @Operation(summary = "for user forgot pwd and verify email successfully")
-    public ResponseEntity<?> newPwd(@RequestBody @Valid NewPwdParam object){
+    public ResponseEntity<Object> newPwd(@RequestBody @Valid NewPwdParam object){
         ResponseObject<Object> responseObject = userSystemService.updatePassword(object);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -106,7 +106,7 @@ public class UserSystemController {
     }
 
     @PutMapping("/status")
-    public ResponseEntity<?> updateStatus(@RequestBody @Valid UpdateStatusParam object){
+    public ResponseEntity<Object> updateStatus(@RequestBody @Valid UpdateStatusParam object){
         ResponseObject<Object> responseObject = userSystemService.updateStatus(object);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -115,7 +115,7 @@ public class UserSystemController {
     }
 
     @PutMapping("/email")
-    public ResponseEntity<?> updateEmail(@RequestBody @Valid UpdateEmailParam object){
+    public ResponseEntity<Object> updateEmail(@RequestBody @Valid UpdateEmailParam object){
         ResponseObject<Object> responseObject = userSystemService.updateEmail(object);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);
@@ -128,7 +128,7 @@ public class UserSystemController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,     //này là dể nó cho phép swagger upload file
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<?> updateImage(@RequestParam("id") String id,
+    public ResponseEntity<Object> updateImage(@RequestParam("id") String id,
                                          @RequestParam("file") MultipartFile file){
         ResponseObject<Object> responseObject = userSystemService.updateImage(id, file);
         if(responseObject.getCode() == 200){
@@ -138,7 +138,7 @@ public class UserSystemController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteObject(String id){
+    public ResponseEntity<Object> deleteObject(String id){
         ResponseObject<Object> responseObject = userSystemService.delete(id);
         if(responseObject.getCode() == 200){
             return ResponseEntity.ok(responseObject);

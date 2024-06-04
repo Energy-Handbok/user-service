@@ -16,7 +16,7 @@ public class AuthController {
     private final UserSystemService userSystemService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginParam param) {
+    public ResponseEntity<Object> login(@RequestBody LoginParam param) {
         return ResponseEntity.ok(userSystemService.login(param));
     }
 }
