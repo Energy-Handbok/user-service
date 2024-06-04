@@ -83,23 +83,7 @@ public class UserSystemServiceImpl implements UserSystemService {
     public ResponseObject<Object> getDetail(String id) {
         try {
             UserSystem userSystem = userRepository.findById(id).orElse(null);
-            if (userSystem == null) {
-                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);
-            }
-            try {
-                if (userSystem.getImgUrl() != null) {
-                    userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
-                }
-            } catch (Exception e) {
-
-            }
-
-//            userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
-            return ResponseObject.builder()
-                    .code(200)
-                    .message("Found")
-                    .data(userSystem)
-                    .build();
+            return checkAndReturnUserSystem(userSystem);
         } catch (Exception e) {
             return ResponseObject.builder()
                     .code(400)
@@ -112,29 +96,33 @@ public class UserSystemServiceImpl implements UserSystemService {
     public ResponseObject<Object> getByEmail(String email) {
         try {
             UserSystem userSystem = userRepository.findByEmail(email);
-            if (userSystem == null) {
-                throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);
-            }
-            try {
-                if (userSystem.getImgUrl() != null) {
-                    userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
-                }
-            } catch (Exception e) {
-
-            }
-
-//            userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
-            return ResponseObject.builder()
-                    .code(200)
-                    .message("Found")
-                    .data(userSystem)
-                    .build();
+            return checkAndReturnUserSystem(userSystem);
         } catch (Exception e) {
             return ResponseObject.builder()
                     .code(400)
                     .message(EXCEPTION_FORMAT_MESSAGE + e.getMessage())
                     .build();
         }
+    }
+
+    private ResponseObject<Object> checkAndReturnUserSystem(UserSystem userSystem) {
+        if (userSystem == null) {
+            throw new UserNotFoudException(USER_NOT_FOUND_MESSGAE);
+        }
+        try {
+            if (userSystem.getImgUrl() != null) {
+                userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
+            }
+        } catch (Exception e) {
+
+        }
+
+//            userSystem.setImgUrl(linkBucket + userSystem.getImgUrl());
+        return ResponseObject.builder()
+                .code(200)
+                .message("Found")
+                .data(userSystem)
+                .build();
     }
 
     @Override
