@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 @Service
@@ -24,7 +25,7 @@ public class MailSenderImpl implements MailSender {
     public ResponseObject<Object> sendOTP(String toEmail) {
         try {
             //create otp
-            Random random = new Random();
+            Random random = new SecureRandom();
             int otp = random.nextInt(900000) + 100000;
 
             MimeMessage message = mailSender.createMimeMessage();

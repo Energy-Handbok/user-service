@@ -16,7 +16,7 @@ public class RedisController {
     private final RedisService redisService;
 
     @GetMapping("/check")
-    public ResponseEntity<?> checkOTP(String gmail, int otp) {
+    public ResponseEntity<Object> checkOTP(String gmail, int otp) {
         ResponseObject<Object> rs = redisService.checkOTP(gmail, otp);
         if(rs.getCode() != 200){
             return ResponseEntity.badRequest().body(rs);
